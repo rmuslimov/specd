@@ -1,14 +1,19 @@
 (ns user
-  (:require
-   [com.stuartsierra.component :as component]
-   [system.components.http-kit :refer [new-web-server]]
-   [environ.core :refer [env]]
-   [specd.core :refer [app]]
-   reloaded.repl))
+  (:require [com.stuartsierra.component :as component]
+            [environ.core :refer [env]]
+            [heroku-database-url-to-jdbc.core :refer [korma-connection-map]]
+            [migratus.core :as migratus]
+            reloaded.repl
+            [specd.core :refer [app]]
+            [system.components
+             [jetty :refer [new-web-server]]
+             [postgres :refer [new-postgres-database]]]))
 
 (defn dev-system []
   (component/system-map
-   :web (new-web-server (Integer. (env :http-port)) app)))
+   :web (new-web-server (Integer. (env :http-port)) app)
+   :db (new-postgres-database
+        (korma-connection-map (env :database-url)))))
 
 (reloaded.repl/set-init! #'dev-system)
 
@@ -18,28 +23,15 @@
 (defn stop-system []
   (reloaded.repl/suspend))
 
+;; Running migrations
+(def migratus-config {:store :database
+                      :migration-dir "migrations/"
+                      :db (korma-connection-map (env :database-url))})
+
+;; (migratus/migrate migratus-config)
+;; (migratus/rollback migratus-config)
+
+;; (migratus/create config "create-user")
+
 ;; Tip for Emacsers!
 ;; (setq cider-refresh-before-fn "user/stop" cider-refresh-after-fn "user/start")
-
-;; (setq cider-cljs-lein-repl
-;;    "(do (require 'figwheel-sidecar.repl-api) (figwheel-sidecar.repl-api/start-figwheel!) (figwheel-sidecar.repl-api/cljs-repl))")
-
-;; (defn start-cljs []
-;;   (ra/start-figwheel!
-;;     {:figwheel-options {:css-dirs ["resources/public/css"]}
-;;      :build-ids ["dev"]   ;; <-- a vector of build ids to start autobuilding
-;;      :all-builds          ;; <-- supply your build configs here
-;;      [{:id "dev"
-;;        :figwheel true
-;;        :source-paths ["src"]
-;;        :compiler {:main "client.web"
-;;                   :asset-path "out"
-;;                   :output-to "dev-resources/public/main.js"
-;;                   :output-dir "dev-resources/public/out"
-;;                   :verbose true}}]}))
-
-;; (defn stop-cljs []
-;;   (ra/stop-figwheel!))
-
-;; (defn repl-cljs []
-;;   (ra/cljs-repl))

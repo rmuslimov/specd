@@ -5,14 +5,21 @@
             :url "http://www.eclipse.org/legal/epl-v10.html"}
   :dependencies [[org.clojure/clojure "1.8.0"]
                  [org.clojure/clojurescript "1.8.51"]
-                 [http-kit "2.1.9"]
                  [org.danielsz/system "0.3.1-SNAPSHOT"]
                  [com.stuartsierra/component "0.3.1"]
                  [reloaded.repl "0.2.1"]
                  [environ "1.0.3"]
                  [compojure "1.5.0"]
+                 [javax.servlet/servlet-api "2.5"]
                  [figwheel-sidecar "0.5.4-SNAPSHOT"]
-                 [com.cemerick/piggieback "0.2.1"]]
+                 [com.cemerick/piggieback "0.2.1"]
+                 [ring "1.5.0"]
+                 [hiccup "1.0.5"]
+                 [heroku-database-url-to-jdbc "0.2.2"]
+                 [org.clojure/java.jdbc "0.3.7"]
+                 [postgresql "9.3-1102.jdbc41"]
+                 [korma "0.4.2"]
+                 [migratus "0.8.9"]]
   :main ^:skip-aot specd.core
   :repl-options {:nrepl-middleware [cemerick.piggieback/wrap-cljs-repl]}
   :target-path "target/%s"
@@ -20,12 +27,14 @@
              :uberjar {:aot :all}}
   :plugins [[lein-cljsbuild "1.1.3"]
             [lein-environ "1.0.3"]
+            [migratus-lein "0.1.7"]
             [lein-figwheel "0.5.4-SNAPSHOT"]]
   :figwheel {:css-dirs ["resources/public/css"]}
   :cljsbuild {:builds
               [{:id "dev"
                 :figwheel true
                 :source-paths ["src" "dev"]
+                :asset-path "out"
                 :compiler {:optimizations :none
                            :output-to "dev-resources/public/main.js"
                            :pretty-print false}}
@@ -34,4 +43,9 @@
                 :compiler {:optimizations :advanced
                            :output-to "resources/public/main.js"
                            :pretty-print false}}]}
-  :env {:http-port 8070})
+  :env {:http-port 8070
+        :database-url "postgres://postgres@127.0.0.1:5432/specd"
+        :password-salt "asdalskdjadjqow"}
+  :migratus {:store :database
+             :migration-dir "migrations"
+             :db ~(get (System/getenv) "DATABASE_URL")})
