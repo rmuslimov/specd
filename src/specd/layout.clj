@@ -14,10 +14,12 @@
 
 (defn boot--form-group
   ""
-  [name type label placeholder]
-  [:div.form-group
-   [:label {:for name} label ":"]
-   [:input.form-control {:name name :type type :placeholder placeholder}]])
+  ([name type label]
+   (boot--form-group name type label ""))
+  ([name type label placeholder]
+   [:div.form-group
+    [:label {:for name} label ":"]
+    [:input.form-control {:name name :type type :placeholder placeholder}]]))
 
 (defn boot--table
   ""
@@ -42,13 +44,30 @@
           [:td type]
           [:td elevation]]))]])
 
-(defn btn-panel
+(defn boot--btn-panel
   ""
   []
   [:div.btn-group
-   [:button.btn.btn-default "Add new"]
-   [:button.btn.btn-default "Find route"]
-   [:button.btn.btn-default "Combine routes"]])
+   [:a.btn.btn-default {:href "/new"} "Add new"]
+   [:a.btn.btn-default {:href "/find"} "Find route"]
+   [:a.btn.btn-default {:href "/combine"} "Combine routes"]])
+
+;; Forms
+
+(defn route-new-form
+  "Routes added here"
+  []
+  [:div.row
+   [:div.col-xs-6.col-md6
+    [:form.login {:action "/new" :method "POST"}
+     [:h2 "Add new route"]
+     (boot--form-group "name" "text" "Name" "Name")
+     (boot--form-group "type" "text" "Route type" "Route")
+     (boot--form-group "checkpoints" "text" "Checkpoints")
+     (boot--form-group "length" "number" "Route length")
+     (boot--form-group "level" "text" "Skill level")
+     (boot--form-group "elevation" "number" "Elevation")
+     [:input.btn.btn-default {:type "submit"}]]]])
 
 (defn login-form
   ""
@@ -73,6 +92,13 @@
      (boot--form-group "confirm_pasw" "password" "Confirm password" "Password")
      [:input.btn.btn-default {:type "submit"}]]]])
 
+(defn user-navbar
+  "Navigation bar."
+  [username]
+  [:div.row
+   [:form {:action "/logout" :method "POST"}
+    [:button.pull-right
+     {:type "submit" :class "btn btn-link"} username ", " "Logout"]]])
 
 ;; Pages
 
@@ -84,7 +110,10 @@
 (defn home [context]
   (let [{:keys [username records]} context]
     [:div
-     [:div.row
-      [:form {:action "/logout" :method "POST"}
-       [:button.pull-right {:type "submit" :class "btn btn-link"} username ", " "Logout"]]]
-     [:div.row (btn-panel) (boot--table records)]]))
+     (user-navbar username)
+     [:div.row (boot--btn-panel) (boot--table records)]]))
+
+(defn add-new-route [{:keys [username]}]
+  [:div
+   (user-navbar username)
+   (route-new-form)])

@@ -26,7 +26,15 @@
 (defn list-routes
   "Records from routes database"
   []
-   (select routes))
+  (select routes))
+
+(defn add-route
+  ""
+  [record]
+  (let [filtered (filter #(not (empty? (second %))) record)]
+    (insert routes
+            (values (into {} filtered)))))
+
 
 ;; (add-user "admin@admin.com" "admin")
 ;; (insert routes (values {:name "example route"}))

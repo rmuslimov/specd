@@ -9,13 +9,13 @@
             [ring.middleware.session.memory :refer [memory-store]]
             [ring.util.response :refer [redirect]]
             [specd
-             [db :refer [add-user if-user-is-active list-routes]]
+             [db :refer [add-user if-user-is-active list-routes add-route]]
              [layout :as layout]
              [utils :refer [all-the-sessions]]]))
 
 ;;
 ;; ----------------------------------
-;; Controllers
+;; Auth functions
 
 (defn authorized?
   "To pass auth having :identity in session is enough."
@@ -27,13 +27,34 @@
   (let [next-url (or (get-in request [:query-params :next] "/") (:uri request))]
     (redirect (format "/login?next=%s" next-url))))
 
+(defn wrap-with-auth
+  [handler]
+  (fn [request]
+    (if-not (authorized? request)
+      (unauthorized-handler request)
+      (handler request))))
+
+;; Controllers
+
 (defn home
   [request]
-  (if-not (authorized? request)
-    (unauthorized-handler request)
-    (let [username (get-in request [:session :identity])]
-      (layout/application
-       "Home" (layout/home {:username username :records (list-routes)})))))
+  (let [username (get-in request [:session :identity])]
+    (layout/application
+     "Home" (layout/home {:username username :records (list-routes)}))))
+
+(defn add-new-route
+  "Process adding route POST request"
+  [request]
+  (let [username (get-in request [:session :identity])]
+    (layout/application
+     "Add new route" (layout/add-new-route {:username username}))))
+
+(defn add-new-route-pt
+  ""
+  [request]
+  (let [params (:form-params request)]
+    (add-route params))
+  (redirect "/"))
 
 (defn login-auth
   "Login user"
@@ -64,15 +85,24 @@
   ;; Redirect back to same page
   (-> (redirect "/") (assoc :session {})))
 
+;;
 ;; ----------------------------------
 ;; Routes
 
-(defroutes app-routes
-  (GET "/" [] home)
+(defroutes public-routes
   (GET "/login" [] (layout/application "Login" (layout/login)))
   (POST "/login" [] login-auth)
   (POST "/logout" [] logout)
-  (POST "/signup" [] register)
+  (POST "/signup" [] register))
+
+(defroutes protected-routes
+  (GET "/" [] home)
+  (GET "/new" [] add-new-route)
+  (POST "/new" [] add-new-route-pt))
+
+(defroutes app-routes
+  public-routes
+  (wrap-routes protected-routes wrap-with-auth)
   (route/resources "/")
   (route/not-found "<h1>Page not found</h1>"))
 
