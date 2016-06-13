@@ -9,6 +9,7 @@
 (defdb db (korma-connection-map (env :database-url)))
 
 (defentity users)
+(defentity routes)
 
 (defn add-user
   "Add user to database."
@@ -22,6 +23,13 @@
   (let [matching-pasw (-> (select users (where {:email username})) first :password)]
     (and matching-pasw (= (pbkdf2 password (env :password-salt)) matching-pasw))))
 
-;; (add-user "admin@specd.com" "aaa")
+(defn list-routes
+  "Records from routes database"
+  []
+   (select routes))
+
+;; (add-user "admin@admin.com" "admin")
+;; (insert routes (values {:name "example route"}))
+;; (insert routes (values {:name "example 3" :length 3}))
 ;; (if-user-is-active "admin" "aaa")
-;; (select users)
+;; (select users) (select routes)

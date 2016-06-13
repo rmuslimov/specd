@@ -12,18 +12,43 @@
     [:body
      [:div.container content]]]))
 
-(defn home []
-  [:div.row
-   [:form {:action "/logout" :method "POST"}
-    [:button {:type "submit" :class "btn btn-link"} "Logout"]]])
-
-
 (defn boot--form-group
   ""
   [name type label placeholder]
   [:div.form-group
    [:label {:for name} label ":"]
    [:input.form-control {:name name :type type :placeholder placeholder}]])
+
+(defn boot--table
+  ""
+  [records]
+  [:table.table
+   [:thead
+    [:tr
+     [:th "#"]
+     [:th "Name"]
+     [:th "Length"]
+     [:th "Skill level"]
+     [:th "Type"]
+     [:th "Elevation"]]]
+   [:tbody
+     (for [record records]
+       (let [{:keys [id name length level type elevation]} record]
+         [:tr
+          [:th {:scope :row} id]
+          [:td name]
+          [:td length]
+          [:td level]
+          [:td type]
+          [:td elevation]]))]])
+
+(defn btn-panel
+  ""
+  []
+  [:div.btn-group
+   [:button.btn.btn-default "Add new"]
+   [:button.btn.btn-default "Find route"]
+   [:button.btn.btn-default "Combine routes"]])
 
 (defn login-form
   ""
@@ -48,7 +73,18 @@
      (boot--form-group "confirm_pasw" "password" "Confirm password" "Password")
      [:input.btn.btn-default {:type "submit"}]]]])
 
+
+;; Pages
+
 (defn login
   ""
   []
   (list (login-form) (signup-form)))
+
+(defn home [context]
+  (let [{:keys [username records]} context]
+    [:div
+     [:div.row
+      [:form {:action "/logout" :method "POST"}
+       [:button.pull-right {:type "submit" :class "btn btn-link"} username ", " "Logout"]]]
+     [:div.row (btn-panel) (boot--table records)]]))

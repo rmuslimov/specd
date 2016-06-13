@@ -28,6 +28,7 @@
                       :migration-dir "migrations/"
                       :db (korma-connection-map (env :database-url))})
 
+;; (migratus/create migratus-config "create-routes")
 ;; (migratus/migrate migratus-config)
 ;; (migratus/rollback migratus-config)
 

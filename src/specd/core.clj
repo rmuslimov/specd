@@ -9,7 +9,7 @@
             [ring.middleware.session.memory :refer [memory-store]]
             [ring.util.response :refer [redirect]]
             [specd
-             [db :refer [add-user if-user-is-active]]
+             [db :refer [add-user if-user-is-active list-routes]]
              [layout :as layout]
              [utils :refer [all-the-sessions]]]))
 
@@ -31,7 +31,9 @@
   [request]
   (if-not (authorized? request)
     (unauthorized-handler request)
-    (layout/application "Home" (layout/home))))
+    (let [username (get-in request [:session :identity])]
+      (layout/application
+       "Home" (layout/home {:username username :records (list-routes)})))))
 
 (defn login-auth
   "Login user"
