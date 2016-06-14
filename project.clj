@@ -44,6 +44,7 @@
                 :compiler {:optimizations :advanced
                            :output-to "resources/public/main.js"
                            :pretty-print false}}]}
+  :uberjar-name "specd-standalone.jar"
   :env {:http-port 8070
         :database-url "postgres://postgres@127.0.0.1:5432/specd"
         :password-salt "asdalskdjadjqow"}
