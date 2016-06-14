@@ -21,6 +21,7 @@
                  [korma "0.4.2"]
                  [migratus "0.8.9"]]
   :main ^:skip-aot specd.core
+  :min-lein-version "2.0.0"
   :repl-options {:nrepl-middleware [cemerick.piggieback/wrap-cljs-repl]}
   :target-path "target/%s"
   :profiles {:dev {:source-paths ["dev"]}

@@ -1,17 +1,20 @@
 (ns specd.core
   (:gen-class)
-  (:require [compojure
+  (:require [com.stuartsierra.component :as cmp]
+            [compojure
              [core :refer :all]
              [route :as route]]
+            [environ.core :refer [env]]
             [ring.middleware
              [params :refer [wrap-params]]
              [session :refer [wrap-session]]]
             [ring.middleware.session.memory :refer [memory-store]]
             [ring.util.response :refer [redirect]]
             [specd
-             [db :refer [add-user if-user-is-active list-routes add-route]]
+             [db :refer [add-route add-user if-user-is-active list-routes]]
              [layout :as layout]
-             [utils :refer [all-the-sessions]]]))
+             [utils :refer [all-the-sessions]]]
+            [system.components.jetty :refer [new-web-server]]))
 
 ;;
 ;; ----------------------------------
@@ -111,7 +114,11 @@
       (wrap-params $)
       (wrap-session $ {:store (memory-store all-the-sessions)})))
 
+(defn prod-system []
+  (cmp/system-map
+   :web (new-web-server (or (Integer. (env :http-port)) 5000) app)))
+
 (defn -main
   "I don't do a whole lot ... yet."
   [& args]
-  (println "Hello, World!"))
+  (cmp/start (prod-system)))

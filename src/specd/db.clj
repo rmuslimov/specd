@@ -29,7 +29,7 @@
   (select routes))
 
 (defn add-route
-  ""
+  "Filter out empty key/value pairs and insert to database."
   [record]
   (let [filtered (filter #(not (empty? (second %))) record)]
     (insert routes
