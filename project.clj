@@ -8,7 +8,7 @@
                  [org.danielsz/system "0.3.1-SNAPSHOT"]
                  [com.stuartsierra/component "0.3.1"]
                  [reloaded.repl "0.2.1"]
-                 [environ "1.0.3"]
+                 [environ "1.0.0"]
                  [compojure "1.5.0"]
                  [javax.servlet/servlet-api "2.5"]
                  [figwheel-sidecar "0.5.4-SNAPSHOT"]
@@ -24,12 +24,14 @@
   :min-lein-version "2.0.0"
   :repl-options {:nrepl-middleware [cemerick.piggieback/wrap-cljs-repl]}
   :target-path "target/%s"
+  :hooks [environ.leiningen.hooks]
   :profiles {:dev {:source-paths ["dev"]}
-             :uberjar {:aot :all}}
+             :uberjar {:aot :all}
+             :production {:env {:production true}}}
   :plugins [[lein-cljsbuild "1.1.3"]
-            [lein-environ "1.0.3"]
             [migratus-lein "0.1.7"]
-            [lein-figwheel "0.5.4-SNAPSHOT"]]
+            [lein-figwheel "0.5.4-SNAPSHOT"]
+            [environ/environ.lein "0.3.1"]]
   :figwheel {:css-dirs ["resources/public/css"]}
   :cljsbuild {:builds
               [{:id "dev"
