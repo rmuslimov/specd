@@ -116,7 +116,7 @@
 
 (defn prod-system []
   (cmp/system-map
-   :web (new-web-server (or (Integer. (env :http-port)) 5000) app)))
+   :web (new-web-server (or (Integer. (env :port)) 5000) app)))
 
 (defn -main
   "I don't do a whole lot ... yet."
