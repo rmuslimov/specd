@@ -86,7 +86,7 @@
   [:div.row
    [:div.col-xs-6.col-md6
     [:form.signup {:action "/signup" :method "POST"}
-     [:h2 "Login"]
+     [:h2 "Register"]
      (boot--form-group "email" "email" "Email Address" "Email")
      (boot--form-group "pasw" "password" "Password" "Password")
      (boot--form-group "confirm_pasw" "password" "Confirm password" "Password")
@@ -117,3 +117,16 @@
   [:div
    (user-navbar username)
    (route-new-form)])
+
+
+;; Some shortcut functions
+
+(defn render-page
+  "Helper for call layout functions."
+  ([request page-title page-func]
+   (render-page request page-title page-func {}))
+
+  ([request page-title page-func context]
+   (let [username (get-in request [:session :identity])]
+     (application
+      page-title (page-func (merge {:username username} context))))))

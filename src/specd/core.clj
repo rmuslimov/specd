@@ -39,20 +39,7 @@
 
 ;; Controllers
 
-(defn home
-  [request]
-  (let [username (get-in request [:session :identity])]
-    (layout/application
-     "Home" (layout/home {:username username :records (list-routes)}))))
-
 (defn add-new-route
-  "Process adding route POST request"
-  [request]
-  (let [username (get-in request [:session :identity])]
-    (layout/application
-     "Add new route" (layout/add-new-route {:username username}))))
-
-(defn add-new-route-pt
   ""
   [request]
   (let [params (:form-params request)]
@@ -99,9 +86,9 @@
   (POST "/signup" [] register))
 
 (defroutes protected-routes
-  (GET "/" [] home)
-  (GET "/new" [] add-new-route)
-  (POST "/new" [] add-new-route-pt))
+  (GET "/" [] #(layout/render-page % "Home" layout/home {:records (list-routes)}))
+  (GET "/new" [] #(layout/render-page % "Add new route" layout/add-new-route))
+  (POST "/new" [] add-new-route))
 
 (defroutes app-routes
   public-routes

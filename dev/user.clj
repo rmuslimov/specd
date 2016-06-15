@@ -11,7 +11,7 @@
 
 (defn dev-system []
   (component/system-map
-   :web (new-web-server (Integer. (env :http-port)) app)
+   :web (new-web-server (Integer. (env :port)) app)
    :db (new-postgres-database
         (korma-connection-map (env :database-url)))))
 
@@ -24,9 +24,10 @@
   (reloaded.repl/suspend))
 
 ;; Running migrations
-(def migratus-config {:store :database
-                      :migration-dir "migrations/"
-                      :db (korma-connection-map (env :database-url))})
+(def migratus-config
+  {:store :database
+   :migration-dir "migrations/"
+   :db (korma-connection-map (env :database-url))})
 
 ;; (migratus/create migratus-config "create-routes")
 ;; (migratus/migrate migratus-config)
