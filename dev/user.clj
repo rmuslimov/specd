@@ -17,11 +17,9 @@
 
 (reloaded.repl/set-init! #'dev-system)
 
-(defn start-system []
-  (reloaded.repl/resume))
-
-(defn stop-system []
-  (reloaded.repl/suspend))
+;; clj configuration management
+;; Tip for Emacsers!
+;; (setq cider-refresh-before-fn "reloaded.repl/suspend" cider-refresh-after-fn "reloaded.repl/resume")
 
 ;; Running migrations
 (def migratus-config

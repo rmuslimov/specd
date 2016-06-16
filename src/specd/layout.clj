@@ -1,5 +1,7 @@
 (ns specd.layout
-  (:require [hiccup.page :refer [html5 include-css include-js]]))
+  (:require [clojure.string :refer [blank?]]
+            [hiccup.page :refer [html5 include-css include-js]]
+            [specd.db :as db]))
 
 (defn application [title & content]
   (html5
@@ -42,8 +44,18 @@
           [:td name]
           [:td length]
           [:td level]
-          [:td type]
+          [:td (when (not (blank? type)) (get db/route-types (Integer. type)))]
           [:td elevation]]))]])
+
+(defn boot--route-type-select
+  ""
+  [name label]
+  [:div.form-group
+   [:label.control-label.col-sm-3 {:for name} label ":"]
+   [:div.col-sm-9
+    [:select.form-control {:name name}
+     (for [[id name] db/route-types]
+       [:option {:value id} name])]]])
 
 (defn boot--btn-panel
   ""
@@ -71,11 +83,11 @@
     [:form.form-horizontal {:action "/new" :method "POST"}
      [:h2 "Add new route"]
      (boot--form-group "name" "text" "Name" "Name")
-     (boot--form-group "type" "text" "Route type" "Route")
-     (boot--form-group "checkpoints" "text" "Checkpoints")
-     (boot--form-group "length" "number" "Route length")
-     (boot--form-group "level" "text" "Skill level")
-     (boot--form-group "elevation" "number" "Elevation")
+     (boot--route-type-select "type" "Route type")
+     (boot--form-group "checkpoints" "text" "Checkpoints" "Command separated list of checkpoints: 1,3,6")
+     (boot--form-group "length" "number" "Route length" "In feets")
+     (boot--form-group "level" "text" "Skill level" "level")
+     (boot--form-group "elevation" "number" "Elevation" "In feets")
      (submit)]]])
 
 (defn find-form
@@ -84,19 +96,19 @@
   [:div.row
    [:div.col-xs-8.col-md-8
     [:h2 "Find route"]
-    [:form.form-horizontal {:action "/find" :method "POST"}
-     (boot--form-group "type" "text" "Route type" "Route")
-     (boot--form-group "level" "text" "Skill level")
-     (boot--form-group "elevation" "number" "Elevation")
+    [:form.form-horizontal {:action "/" :method "GET"}
+     (boot--route-type-select "type" "Route type")
+     (boot--form-group "level" "text" "Skill level" "Level")
+     (boot--form-group "elevation" "number" "Elevation" "Elevation in feets.")
      [:div.form-group
       [:label.control-label.col-sm-3 {:for "length-from"} "Length between" ":"]
       [:div.col-sm-9
        [:div.row
         [:div.col-sm-4
-         [:input.form-control {:name "length-from" :type type}]]
+         [:input.form-control {:name "length-from" :type type :placeholder "from"}]]
         [:label.control-label.col-sm-1 "and"]
         [:div.col-sm-4
-         [:input.form-control {:name "length-to" :type type}]]]]]
+         [:input.form-control {:name "length-to" :type type :placeholder "to"}]]]]]
      (submit)]]])
 
 (defn combine-route-form

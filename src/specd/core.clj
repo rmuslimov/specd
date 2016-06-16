@@ -5,7 +5,9 @@
              [core :refer :all]
              [route :as route]]
             [environ.core :refer [env]]
+            [prone.middleware :as prone]
             [ring.middleware
+             [keyword-params :refer [wrap-keyword-params]]
              [params :refer [wrap-params]]
              [session :refer [wrap-session]]]
             [ring.middleware.session.memory :refer [memory-store]]
@@ -75,6 +77,12 @@
   ;; Redirect back to same page
   (-> (redirect "/") (assoc :session {})))
 
+(defn home
+  "List of routes with applied filters page."
+  [request]
+  (let [params (:query-params request)
+        routes (list-routes params)]
+    (layout/render-page request "Home" layout/home {:records routes})))
 
 ;;
 ;; ----------------------------------
@@ -87,7 +95,7 @@
   (POST "/signup" [] register))
 
 (defroutes protected-routes
-  (GET "/" [] #(layout/render-page % "Home" layout/home {:records (list-routes)}))
+  (GET "/" [] home)
   (GET "/new" [] #(layout/render-page % "Add new route" layout/add-new-route))
   (POST "/new" [] add-new-route)
   (GET "/find" [] #(layout/render-page % "Find route" layout/find-route))
@@ -102,8 +110,10 @@
 
 (def app
   (as-> app-routes $
+      (wrap-keyword-params $)
       (wrap-params $)
-      (wrap-session $ {:store (memory-store all-the-sessions)})))
+      (wrap-session $ {:store (memory-store all-the-sessions)})
+      (prone/wrap-exceptions $)))
 
 (defn prod-system []
   (cmp/system-map

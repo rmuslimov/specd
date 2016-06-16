@@ -19,7 +19,8 @@
                  [org.clojure/java.jdbc "0.3.7"]
                  [postgresql "9.3-1102.jdbc41"]
                  [korma "0.4.2"]
-                 [migratus "0.8.9"]]
+                 [migratus "0.8.9"]
+                 [prone "1.1.1"]]
   :main ^:skip-aot specd.core
   :min-lein-version "2.0.0"
   :repl-options {:nrepl-middleware [cemerick.piggieback/wrap-cljs-repl]}
