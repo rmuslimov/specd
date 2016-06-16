@@ -16,7 +16,6 @@
              [utils :refer [all-the-sessions]]]
             [system.components.jetty :refer [new-web-server]]))
 
-;;
 ;; ----------------------------------
 ;; Auth functions
 
@@ -37,6 +36,7 @@
       (unauthorized-handler request)
       (handler request))))
 
+;; ----------------------------------
 ;; Controllers
 
 (defn add-new-route
@@ -75,6 +75,7 @@
   ;; Redirect back to same page
   (-> (redirect "/") (assoc :session {})))
 
+
 ;;
 ;; ----------------------------------
 ;; Routes
@@ -88,7 +89,10 @@
 (defroutes protected-routes
   (GET "/" [] #(layout/render-page % "Home" layout/home {:records (list-routes)}))
   (GET "/new" [] #(layout/render-page % "Add new route" layout/add-new-route))
-  (POST "/new" [] add-new-route))
+  (POST "/new" [] add-new-route)
+  (GET "/find" [] #(layout/render-page % "Find route" layout/find-route))
+  (GET "/combine" [] #(layout/render-page % "Combine route" layout/combine-route))
+  )
 
 (defroutes app-routes
   public-routes
