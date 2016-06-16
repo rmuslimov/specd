@@ -171,6 +171,7 @@
 (defn add-new-route [{:keys [username]}]
   [:div
    (user-navbar username)
+   (boot--btn-panel)
    (route-new-form)])
 
 (defn find-route
@@ -178,13 +179,14 @@
   [{:keys [username]}]
   [:div
    (user-navbar username)
-   (find-form)])
+   [:div.row (boot--btn-panel) (find-form)]])
 
 (defn combine-route
   ""
   [{:keys [username]}]
   [:div
    (user-navbar username)
+   (boot--btn-panel)
    [:div.row
     [:div.col-xs-6.col-md6
      [:h2 "Combine routes"]
