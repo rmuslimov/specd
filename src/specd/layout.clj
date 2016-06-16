@@ -57,6 +57,17 @@
      (for [[id name] db/route-types]
        [:option {:value id} name])]]])
 
+(defn boot--route-entity-select
+  ""
+  [name label]
+  [:div.form-group
+   [:label.control-label.col-sm-3 {:for name} label ":"]
+   [:div.col-sm-9
+    [:select.form-control {:name name}
+     (for [{id :id name :name} (db/list-routes {})]
+       [:option {:value id} name])]]])
+
+
 (defn boot--btn-panel
   ""
   []
@@ -110,18 +121,6 @@
         [:div.col-sm-4
          [:input.form-control {:name "length-to" :type type :placeholder "to"}]]]]]
      (submit)]]])
-
-(defn combine-route-form
-  "Combine routes here"
-  []
-  [:div.row
-   [:div.col-xs-6.col-md6
-    [:h2 "Combine routes"]
-    [:form.form-horizontal {:action "/combine" :method "POST"}
-     (boot--form-group "route1" "text" "Route1" "Route name")
-     (boot--form-group "route2" "text" "Route2" "Route name")
-     (submit)]]])
-
 
 (defn login-form
   ""
@@ -184,7 +183,14 @@
   [{:keys [username]}]
   [:div
    (user-navbar username)
-   (combine-route-form)])
+   [:div.row
+    [:div.col-xs-6.col-md6
+     [:h2 "Combine routes"]
+     [:form.form-horizontal {:action "/combine" :method "POST"}
+      (boot--form-group "name" "text" "Name" "Name")
+      (boot--route-entity-select "route1" "Route1")
+      (boot--route-entity-select "route2" "Route2")
+      (submit)]]]])
 
 
 ;; Some shortcut functions

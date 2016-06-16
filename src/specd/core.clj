@@ -13,7 +13,8 @@
             [ring.middleware.session.memory :refer [memory-store]]
             [ring.util.response :refer [redirect]]
             [specd
-             [db :refer [add-route add-user if-user-is-active list-routes]]
+             [db :refer [add-route add-user if-user-is-active
+                         list-routes create-new-route-from]]
              [layout :as layout]
              [utils :refer [all-the-sessions]]]
             [system.components.jetty :refer [new-web-server]]))
@@ -77,12 +78,21 @@
   ;; Redirect back to same page
   (-> (redirect "/") (assoc :session {})))
 
-(defn home
+(defn- home
   "List of routes with applied filters page."
   [request]
   (let [params (:query-params request)
         routes (list-routes params)]
     (layout/render-page request "Home" layout/home {:records routes})))
+
+(defn- combine-routes
+  "Add new routes based on two others."
+  [request]
+  (let [params (:params request)
+        route-name (:name params)
+        route-ids (map read-string (vals (dissoc params :name)))]
+    (apply create-new-route-from route-name route-ids))
+  (redirect "/"))
 
 ;;
 ;; ----------------------------------
@@ -100,7 +110,7 @@
   (POST "/new" [] add-new-route)
   (GET "/find" [] #(layout/render-page % "Find route" layout/find-route))
   (GET "/combine" [] #(layout/render-page % "Combine route" layout/combine-route))
-  )
+  (POST "/combine" [] combine-routes))
 
 (defroutes app-routes
   public-routes

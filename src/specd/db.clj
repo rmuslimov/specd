@@ -7,7 +7,8 @@
             [korma
              [core :refer :all]
              [db :refer [defdb]]]
-            [specd.utils :refer [pbkdf2]]))
+            [specd.utils :refer [pbkdf2]]
+            [clojure.string :as str]))
 
 (defdb db (korma-connection-map (env :database-url)))
 
@@ -49,7 +50,20 @@
     (insert routes
             (values (merge (keywordize-keys (into {} filtered)) casted)))))
 
+(defn create-new-route-from
+  ""
+  [name & route-ids]
+  (let [sql (-> (select* routes) (where {:id [in route-ids]}))
+        rows (map :checkpoints (select (-> sql (fields :checkpoints))))
+        checkpoints (set (mapcat #(str/split % #",") rows))
+        default-fields (first (select sql))
+        fields (merge
+                (dissoc default-fields :id)
+                {:name name :checkpoints (->> checkpoints sort (str/join ","))})]
+    (insert routes
+            (values fields))))
 
+;; Examples
 ;; (add-user "admin@admin.com" "admin")
 ;; (insert routes (values {:name "example route"}))
 ;; (insert routes (values {:name "example 3" :length 3}))
