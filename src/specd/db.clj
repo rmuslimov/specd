@@ -51,7 +51,7 @@
             (values (merge (keywordize-keys (into {} filtered)) casted)))))
 
 (defn create-new-route-from
-  ""
+  "Pick few routes checkpoints, get first of them as default of other fields and add to db."
   [name & route-ids]
   (let [sql (-> (select* routes) (where {:id [in route-ids]}))
         rows (map :checkpoints (select (-> sql (fields :checkpoints))))
@@ -60,8 +60,7 @@
         fields (merge
                 (dissoc default-fields :id)
                 {:name name :checkpoints (->> checkpoints sort (str/join ","))})]
-    (insert routes
-            (values fields))))
+    (insert routes (values fields))))
 
 ;; Examples
 ;; (add-user "admin@admin.com" "admin")

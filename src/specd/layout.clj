@@ -3,6 +3,7 @@
             [hiccup.page :refer [html5 include-css include-js]]
             [specd.db :as db]))
 
+;; Main base.html
 (defn application [title & content]
   (html5
    {:lang "en"}
@@ -13,6 +14,8 @@
     (include-js "main.js")
     [:body
      [:div.container content]]]))
+
+;; Helpers
 
 (defn boot--form-group
   ""
@@ -82,7 +85,6 @@
   [:div.form-group
    [:div.col-sm-offset-3.col-sm-3
     [:input.btn.btn-default {:type "submit"}]]])
-
 
 ;; Forms
 
@@ -191,7 +193,6 @@
       (boot--route-entity-select "route1" "Route1")
       (boot--route-entity-select "route2" "Route2")
       (submit)]]]])
-
 
 ;; Some shortcut functions
 

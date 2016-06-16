@@ -33,6 +33,7 @@
     (redirect (format "/login?next=%s" next-url))))
 
 (defn wrap-with-auth
+  "All protected routes check if request authorized? and if not, redirect to root page."
   [handler]
   (fn [request]
     (if-not (authorized? request)
@@ -43,14 +44,14 @@
 ;; Controllers
 
 (defn add-new-route
-  ""
+  "Process post request and added new route to database."
   [request]
   (let [params (:form-params request)]
     (add-route params))
   (redirect "/"))
 
 (defn login-auth
-  "Login user"
+  "Login user, set :identity and redirect to next url"
   [request]
   (let [username (get-in request [:form-params "email"])
         password (get-in request [:form-params "pasw"])
@@ -68,7 +69,7 @@
   (-> (redirect "/") (assoc :session {})))
 
 (defn register
-  "Register user in database"
+  "Add user to database, clear session and direct to root page."
   [request]
   (let [username (get-in request [:form-params "email"])
         password (get-in request [:form-params "pasw"])
@@ -86,7 +87,7 @@
     (layout/render-page request "Home" layout/home {:records routes})))
 
 (defn- combine-routes
-  "Add new routes based on two others."
+  "Add new routes based on few others."
   [request]
   (let [params (:params request)
         route-name (:name params)
@@ -98,12 +99,14 @@
 ;; ----------------------------------
 ;; Routes
 
+;; Routes with no access control
 (defroutes public-routes
   (GET "/login" [] (layout/application "Login" (layout/login)))
   (POST "/login" [] login-auth)
   (POST "/logout" [] logout)
   (POST "/signup" [] register))
 
+;; Routes and auth handler
 (defroutes protected-routes
   (GET "/" [] home)
   (GET "/new" [] #(layout/render-page % "Add new route" layout/add-new-route))
@@ -112,17 +115,20 @@
   (GET "/combine" [] #(layout/render-page % "Combine route" layout/combine-route))
   (POST "/combine" [] combine-routes))
 
+;; Combine them here
 (defroutes app-routes
   public-routes
   (wrap-routes protected-routes wrap-with-auth)
   (route/resources "/")
   (route/not-found "<h1>Page not found</h1>"))
 
+;; Basic wrappers for Ringx
 (def app
   (as-> app-routes $
       (wrap-keyword-params $)
       (wrap-params $)
       (wrap-session $ {:store (memory-store all-the-sessions)})
+      ;; This is cool prone wrapper, helps to debug
       (prone/wrap-exceptions $)))
 
 (defn prod-system []
