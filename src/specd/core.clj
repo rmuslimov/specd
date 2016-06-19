@@ -125,11 +125,11 @@
 ;; Basic wrappers for Ringx
 (def app
   (as-> app-routes $
-      (wrap-keyword-params $)
-      (wrap-params $)
-      (wrap-session $ {:store (memory-store all-the-sessions)})
-      ;; This is cool prone wrapper, helps to debug
-      (prone/wrap-exceptions $)))
+    (wrap-keyword-params $)
+    (wrap-params $)
+    (wrap-session $ {:store (memory-store all-the-sessions)})
+    ;; This is cool prone wrapper, helps to debug
+    (prone/wrap-exceptions $)))
 
 (defn prod-system []
   (cmp/system-map
