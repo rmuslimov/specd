@@ -13,7 +13,9 @@
   (component/system-map
    :web (new-web-server (Integer. (env :port)) app)
    :db (new-postgres-database
-        (korma-connection-map (env :database-url)))))
+        (assoc
+         (korma-connection-map (env :database-url))
+         :sslmode "require"))))
 
 (reloaded.repl/set-init! #'dev-system)
 
